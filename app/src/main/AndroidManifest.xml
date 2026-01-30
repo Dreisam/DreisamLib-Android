@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!--   ************************ 网络请求 ********************-->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--   ************************ 相机权限 ********************-->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!--   ************************ 声明相机硬件，没有相机的手机无法安装使用 ********************-->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <!--   ************************ 安卓11，声明调用相机的，不声明无法调用相机 ********************-->
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+        <intent>
+            <action android:name="android.media.action.VIDEO_CAPTURE" />
+        </intent>
+    </queries>
+
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--   ************************ 音频权限，播放音频、控制音量 ********************-->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- ************************声明前台服务的类型，类型是dataSync ************************ -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <!--   ************************ 启动前台服务 ********************-->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!--   ************************ 忽略电池优化的权限 ********************-->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!--   ************************ 手机震动 ********************-->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <!--   ************************ 通知权限 ********************-->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+
+    <!--   ************************ 声明蓝牙硬件，没有相机的手机无法安装使用 ********************-->
+    <uses-feature android:name="android.hardware.bluetooth" />
+    <!--   ************************ 蓝牙权限，安卓11及以下 ********************-->
+
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"/> <!-- 蓝牙连接 -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN" /> <!-- 蓝牙扫描 -->
+    <!--   ************************ 定位权限，蓝牙扫描需要用到，安卓11及以下 ********************-->
+    <uses-permission
+        android:name="android.permission.ACCESS_FINE_LOCATION"/> <!-- 精确定位，要求全版本必须声明 -->
+    <uses-permission
+        android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- 粗略定位 -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> <!-- 后台定位 -->
+    <!--   ************************ 蓝牙权限，安卓12及以上 ********************-->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" /><!-- 蓝牙扫描 -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" /> <!-- 蓝牙连接 -->
+
+    <!--   ************************ 闹钟权限，安卓12及以上 ********************-->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" /> <!-- 闹钟权限，允许设置精确闹钟 安卓12-->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" /> <!-- 闹钟权限，允许使用精确闹钟 安卓13-->
+
+    <!--   ************************ 悬浮框权限 ********************-->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+
+    <application
+        android:name=".app.MyApp"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:usesCleartextTraffic="true"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        tools:replace="android:allowBackup,android:label"
+        android:theme="@style/AppTheme">
+        <activity
+            android:name="com.dreisamlib.demo.ui.LRActivity"
+            android:exported="true"
+            android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="stateHidden|adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="687a04e9bc47b67d83b596cc" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.dreisamlib.demo.ui.MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize"/>
+            />
+        <activity android:name="com.dreisamlib.demo.ui.ScanActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            />
+
+        <activity android:name=".ui.BindActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|screenLayout"
+            android:screenOrientation="portrait"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden|adjustResize"
+            />
+        <!-- 前台服务 -->
+        <service
+            android:name=".service.DlsForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="connectedDevice"
+            tools:ignore="ForegroundServicePermission" />
+
+        <provider
+            android:name=".app.ShareProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+    </application>
+
+</manifest>
