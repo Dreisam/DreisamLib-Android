@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Created by songzhiiyn on 2017/10/9.
  * 自定义recycleview的adapter适配器基类
  */
 

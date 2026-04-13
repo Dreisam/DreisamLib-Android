@@ -5,7 +5,7 @@ import android.os.Process
 import java.util.Stack
 
 /**
- * 当前应用程序Activity管理类
+ * Activity manager for the current application
  *
  */
 object ActivityUtils {
@@ -13,7 +13,7 @@ object ActivityUtils {
 
 
     /**
-     * 添加Activity
+     * Add Activity
      *
      * @param activity activity
      */
@@ -22,8 +22,8 @@ object ActivityUtils {
     }
 
     /**
-     * 获取当前Activity
-     * - 注意！！！使用该方法必须对获得的Activity进行判空处理
+     * Get current Activity
+     * - Note: The returned Activity must always be null-checked
      *
      * @return Activity
      */
@@ -36,10 +36,10 @@ object ActivityUtils {
     }
 
     /**
-     * 获取指定的Activity
-     * - 注意！！！使用该方法必须对获得的Activity进行判空处理
+     * Get specified Activity
+     * - Note: The returned Activity must always be null-checked
      *
-     * @param cls 目标Activity.class
+     * @param cls Target Activity.class
      * @return Activity
      */
     fun getActivity(cls: Class<*>?): Activity? {
@@ -53,9 +53,9 @@ object ActivityUtils {
 
     val activityStackNames: MutableList<String?>
         /**
-         * 获取ActivityStack下的所有Activity名字
+         * Get all Activity names in ActivityStack
          *
-         * @return Activity的名字
+         * @return Activity names
          */
         get() {
             if ( activityStack.isEmpty()) return ArrayList<String?>()
@@ -67,7 +67,7 @@ object ActivityUtils {
         }
 
     /**
-     * 结束当前Activity
+     * Finish current Activity
      */
     fun finishActivity() {
         if (activityStack.isEmpty()) return
@@ -76,7 +76,7 @@ object ActivityUtils {
     }
 
     /**
-     * 结束指定的Activity
+     * Finish specified Activity
      *
      * @param activity activity
      */
@@ -88,7 +88,7 @@ object ActivityUtils {
     }
 
     /**
-     * 结束指定类名的Activity
+     * Finish Activity by class name
      *
      * @param class1 class
      */
@@ -102,7 +102,7 @@ object ActivityUtils {
     }
 
     /**
-     * 结束所有Activity
+     * Finish all Activities
      */
     fun finishAllActivity() {
         if (activityStack.isEmpty()) return
@@ -118,9 +118,9 @@ object ActivityUtils {
     }
 
     /**
-     * 结束除参数外的所有Activity
+     * Finish all Activities except specified ones
      *
-     * @param class1 class数组
+     * @param class1 class array
      */
     fun finishAllOtherActivity(vararg class1: Class<*>) {
         if (activityStack.isEmpty()) return
@@ -143,12 +143,12 @@ object ActivityUtils {
     }
 
     /**
-     * 退出应用
+     * Exit app
      */
     fun AppExit() {
         try {
             finishAllActivity()
-            // 杀死应用进程
+            // Kill app process
             Process.killProcess(Process.myPid())
             System.exit(0)
             System.gc()

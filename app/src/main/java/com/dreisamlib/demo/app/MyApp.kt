@@ -31,48 +31,48 @@ class MyApp :Application(){
         AppLogUtils.debug("versionName:" +versionName)
         initAppCrashLogCollect()
         registerActivityLifecycleCallbacks(activityLife)
-
+        
         ConnectCtrl.initSDK()
     }
 
 
-    var activityLife = object : ActivityLifecycleCallbacks {
+   var activityLife = object : ActivityLifecycleCallbacks {
         private var refCount = 0
         private var isFrist = true
 
-        override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
+       override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
 
-        }
+       }
 
-        override fun onActivityStarted(activity: Activity) {
-            if (refCount == 0 && !isFrist) {
-                AppLogUtils.debug("MyApp onActivityStarted")
-            }
-            isFrist = false
-            refCount++
-        }
+       override fun onActivityStarted(activity: Activity) {
+           if (refCount == 0 && !isFrist) {
+               AppLogUtils.debug("MyApp onActivityStarted")
+           }
+           isFrist = false
+           refCount++
+       }
 
-        override fun onActivityResumed(activity: Activity) {
-        }
+       override fun onActivityResumed(activity: Activity) {
+       }
 
-        override fun onActivityPaused(activity: Activity) {
-        }
+       override fun onActivityPaused(activity: Activity) {
+       }
 
-        override fun onActivityStopped(activity: Activity) {
-            refCount--
-            if (refCount <= 0) {
-                refCount = 0
-                AppLogUtils.debug("MyApp onActivityStopped")
-            }
-        }
+       override fun onActivityStopped(activity: Activity) {
+           refCount--
+           if (refCount <= 0) {
+               refCount = 0
+               AppLogUtils.debug("MyApp onActivityStopped")
+           }
+       }
 
-        override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+       override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
 
-        }
+       }
 
-        override fun onActivityDestroyed(activity: Activity) {
-        }
-    }
+       override fun onActivityDestroyed(activity: Activity) {
+       }
+   }
 
     /**
      * 设置本地崩溃和闪退日志的收集

@@ -1,9 +1,7 @@
 package com.dreisamlib.demo.ui
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.provider.Settings
 import android.view.View
 import android.widget.Button
 import com.dreisamlib.demo.R
@@ -14,8 +12,8 @@ import com.dreisamlib.demo.ctrl.ConnectCtrl
 import com.dreisamlib.demo.utils.AppLogUtils
 import com.dreisamlib.demo.utils.ToastUtil
 import com.dreisamlib.lib.api.DreisamLib
-import com.dreisamlib.lib.bean.DreisamBindingEnum
 import com.dreisamlib.lib.bean.DrisamDeviceModel
+import com.dreisamlib.lib.bean.DreisamBindingEnum
 import com.dreisamlib.lib.listener.OnBindListener
 
 
@@ -64,9 +62,9 @@ class BindActivity : BaseActivity(), View.OnClickListener {
                     scanBt.text  = "Go to Bind"
                 }
 
-                override fun onBindSuccess(deviceInfoModel: DrisamDeviceModel) {
+                override fun onBindSuccess(drisamDeviceModel: DrisamDeviceModel) {
                     hideLoading()
-                    if (!deviceInfoModel.deviceSn.isEmpty()) {
+                    if (!drisamDeviceModel.deviceSn.isEmpty()) {
                         AppLogUtils.debug("goMain macName:" + macName)
                         MyApp.sharedPreferUtils.putString(Constans.KEY_DEV_NAME, macName)
                         startActivity(Intent(this@BindActivity, MainActivity::class.java))
@@ -81,6 +79,8 @@ class BindActivity : BaseActivity(), View.OnClickListener {
                     }else if (bindingCode == DreisamBindingEnum.SCANTING){
                         "Scanning"
                     }else if (bindingCode == DreisamBindingEnum.CONNECTING){
+                        "Connecting"
+                    }else if (bindingCode == DreisamBindingEnum.INTERACTING){
                         "Connecting"
                     }else {
                         "Binding"

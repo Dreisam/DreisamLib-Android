@@ -16,7 +16,7 @@ import com.dreisamlib.demo.app.MyApp
 import com.dreisamlib.demo.constant.Constans
 import com.dreisamlib.demo.ctrl.ConnectCtrl
 import com.dreisamlib.demo.dialog.CommDialog
-import com.dreisamlib.demo.inter.CallBackValue
+import com.dreisamlib.demo.inter.ValueCallBack
 import com.dreisamlib.demo.service.DlsForegroundService
 import com.dreisamlib.demo.utils.ActivityUtils
 import com.dreisamlib.demo.utils.AppLogUtils
@@ -34,6 +34,7 @@ import com.dreisamlib.lib.api.DreisamLib
 import com.dreisamlib.lib.bean.DreisamConnectEnum
 import com.dreisamlib.lib.bean.DreisamGlucoseModel
 import java.util.Collections
+import kotlin.text.toInt
 
 
 class MainActivity : BaseActivity(), View.OnClickListener {
@@ -46,6 +47,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     private lateinit var syncLayout: View
     private lateinit var syncMaxTv: TextView
     private lateinit var syncTv: TextView
+    private lateinit var rssiTv: TextView
     private lateinit var proBar: ProgressBar
     private lateinit var proLoading: ProgressBar
     private lateinit var viewStates: View
@@ -81,6 +83,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         proLoading = findViewById(R.id.proLoading)
         viewStates = findViewById(R.id.viewStates)
         devConnectStateTv = findViewById(R.id.devConnectStateTv)
+        rssiTv = findViewById(R.id.rssiTv)
 
 
         findViewById<View>(R.id.logout).setOnClickListener(this)
@@ -147,31 +150,19 @@ class MainActivity : BaseActivity(), View.OnClickListener {
     }
 
     val onConnectListener = object : OnConnectListener {
-        override fun onConnecState(state: DreisamConnectEnum?) {
-            AppLogUtils.debug("State：$state")
-            if (state == DreisamConnectEnum.DEVICE_FINISH){
-                DreisamLib.getConnectManage().disconnect()
-                AppLogUtils.debug("finishDevcie")
-                startActivity(Intent(this@MainActivity, BindActivity::class.java))
-                finish()
-                return
-            }
-            if (state == DreisamConnectEnum.SHOW_CONNECTING) {
-                proLoading.visibility = View.VISIBLE
-                viewStates.visibility = View.GONE
-                connectStateTv.text = "Connecting"
-            } else if (state == DreisamConnectEnum.BLE_OFF) {
+        override fun onConnectFail(state: DreisamConnectEnum?) {
+            if (state == DreisamConnectEnum.BLE_OFF) {
                 devConnectStateTv.text = "Ble：Off"
                 ActivityUtils.currentActivity()?.baseContext?.let {
                     CommonUtil.showOpenBluetoothDialog(it)
                 }
                 Toast.makeText(this@MainActivity, "Ble Off", Toast.LENGTH_LONG)
-            } else if (state == DreisamConnectEnum.DEVICE_CONNECTING) {
-                devConnectStateTv.text = "Ble：Connecting"
-                ActivityUtils.currentActivity()?.baseContext?.let {
-                    CommonUtil.showOpenBluetoothDialog(it)
-                }
-            } else if (state == DreisamConnectEnum.LACK_PERMISSION) {
+            } else if (state == DreisamConnectEnum.AUTHENTICATION_FAIL) {
+                proLoading.visibility = View.VISIBLE
+                viewStates.visibility = View.GONE
+                devConnectStateTv.text = "Auth Fail"
+                connectStateTv.text = "Authentication Fail"
+            }else if (state == DreisamConnectEnum.LACK_PERMISSION) {
                 connectStateTv.text = "No Permission"
                 devConnectStateTv.text = "No Permission"
                 if (!CommonUtil.isBlueEnable()) {
@@ -186,11 +177,30 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 }
 
                 if (!PermissionManager.checkBluetoothScanConnectPermission()) {
-                    AppLogUtils.debug("No Ble Permission")
+//                    AppLogUtils.ConnectDevice:Blue OFFdebug("No Ble Permission")
                     Toast.makeText(this@MainActivity, "No Ble Permission", Toast.LENGTH_LONG)
                     return
                 }
 
+            }
+        }
+
+        override fun onConnectState(state: DreisamConnectEnum?) {
+            AppLogUtils.debug("State：$state")
+            if (state == DreisamConnectEnum.SHOW_CONNECTING) {
+                proLoading.visibility = View.VISIBLE
+                viewStates.visibility = View.GONE
+                connectStateTv.text = "Connecting"
+            }  else if (state == DreisamConnectEnum.DEVICE_FINISH) {
+                proLoading.visibility = View.VISIBLE
+                viewStates.visibility = View.GONE
+                devConnectStateTv.text = "Device Finish"
+                connectStateTv.text = "Device Finish"
+            }  else if (state == DreisamConnectEnum.DEVICE_DISCONNECT) {
+                proLoading.visibility = View.VISIBLE
+                viewStates.visibility = View.GONE
+                devConnectStateTv.text = "Disconnect"
+                connectStateTv.text = "Disconnect"
             }
         }
 
@@ -200,6 +210,8 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             proLoading.visibility = View.GONE
             viewStates.visibility = View.VISIBLE
             isFrist = false
+//            handler.postDelayed({ rssiTv.setText("rssi:" + InnerConnectCtrl.getInstance().rssi.toString()) }, 1000)
+
         }
 
     }
@@ -364,7 +376,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         dialog.onSelectListener = object : CommDialog.OnSelectListener {
             override fun onConfirm() {
                 super.onConfirm()
-                ConnectCtrl.finishDevcie(object : CallBackValue<Boolean>{
+                ConnectCtrl.finishDevcie(object : ValueCallBack<Boolean>{
                     override fun succ(t: Boolean?) {
                         AppLogUtils.debug("finishDevcie succ")
                         startActivity(Intent(this@MainActivity, BindActivity::class.java))

@@ -116,7 +116,15 @@
         android:layout_marginHorizontal="25dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
-
+        <TextView
+            android:id="@+id/rssiTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="rssi:0"
+            android:textColor="@color/colorPrimary"
+            android:textSize="12sp"
+            android:textStyle="bold" />
 
         <View
             android:layout_width="0dp"

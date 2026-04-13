@@ -12,8 +12,8 @@ android {
         applicationId = "com.dreisam.demo"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.0.2"
 
     }
 
@@ -25,6 +25,7 @@ android {
             storePassword = "251125"
         }
     }
+
     buildTypes {
         release {
             isShrinkResources = true//混淆是否开启
@@ -54,7 +55,8 @@ android {
 }
 
 dependencies {
-    implementation(files("libs/DreisamLib-release_1.0.0.aar"))
+    implementation(files("libs/DreisamLib-release_1.0.2.aar"))
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
 
     implementation("androidx.activity:activity:1.8.0")
     implementation("androidx.core:core-ktx:1.8.0")

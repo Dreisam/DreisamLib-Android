@@ -15,7 +15,7 @@ import com.dreisamlib.demo.ui.MainActivity
 import com.dreisamlib.lib.bean.DreisamGlucoseModel
 
 /**
- * 通知消息的管理
+ * Notification message management
  */
 object NotifyUtils {
     const val serviceId = "service"
@@ -23,38 +23,38 @@ object NotifyUtils {
     private const val glucoseDataName = "Monitor"
     private const val glucoseDataId = "glucoseData"
     private const val glucoseWarnId = "glucoseWarn"
-    const val notifyIdService = 1011//前台服务的通知ID
-    private const val bluetoothSignal = 1012//蓝牙信号缺失的通知ID
+    const val notifyIdService = 1011//Notification ID for the foreground service
+    private const val bluetoothSignal = 1012//Notification ID for missing Bluetooth signal
 
     /**
-     * 创建通知消息的推送通道
+     * Create notification channels
      */
     fun createNotificationChannel() {
         val context = MyApp.context
-        // 创建通知渠道（仅适用于 Android 8.0 及以上版本）
+        // Create notification channels (only for Android 8.0 and above)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            //前台服务的通知渠道
+            // Notification channel for foreground service
             if (!TextUtils.isEmpty(serviceName)) {
                 var notificationChannel = NotificationChannel(
                     serviceId,
                     serviceName,
                     NotificationManager.IMPORTANCE_DEFAULT
                 )
-                notificationChannel.enableVibration(false)//是否震动
-                notificationChannel.setSound(null, null)//屏蔽铃声
+                notificationChannel.enableVibration(false)//Whether vibration is enabled
+                notificationChannel.setSound(null, null)//Disable ringtone
                 notificationManager.createNotificationChannel(notificationChannel)
             }
 
-            //血糖数据的通知渠道
+            // Notification channel for glucose data
             if (!TextUtils.isEmpty(glucoseDataName)) {
                 var notificationChannel = NotificationChannel(
                     glucoseDataId,
                     glucoseDataName,
                     NotificationManager.IMPORTANCE_DEFAULT
                 )
-                notificationChannel.enableVibration(true)//是否震动
+                notificationChannel.enableVibration(true)//Whether vibration is enabled
                 notificationManager.createNotificationChannel(notificationChannel)
             }
         }
@@ -81,22 +81,12 @@ object NotifyUtils {
     }
 
 
-    /**
-     * 发送蓝牙信号缺失的通知
-     */
-    fun sendConnectSignalLossAlarm() {
-        val title = "连接丢失警报"
-        val message ="连接丢失，功能不可用，请检查连接"
-        AppLogUtils.debug("蓝牙信号缺失，进行响铃提醒")
-        sendNotifyMessage(title, message, glucoseWarnId, bluetoothSignal)
-    }
-
 
 
 
 
     /**
-     * 血糖数据
+     * Glucose data
      */
     fun sendGlucoseData(entity: DreisamGlucoseModel) {
         var title = "Real-time data"
@@ -107,7 +97,7 @@ object NotifyUtils {
     }
 
     /**
-     * 发送常驻服务的通知
+     * Send notification for persistent service
      */
     fun sendGlucoseService() {
         var title ="Real-time data"
@@ -122,7 +112,7 @@ object NotifyUtils {
 
 
     /**
-     * 取消所有的通知消息
+     * Cancel all notification messages
      */
     fun cancelAllNotify() {
         getNotificationManager().cancelAll()

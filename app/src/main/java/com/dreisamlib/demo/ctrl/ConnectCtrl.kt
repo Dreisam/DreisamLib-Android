@@ -18,7 +18,6 @@ import com.dreisamlib.lib.listener.OnAnalzeDatatListener
 import com.dreisamlib.lib.listener.OnConnectListener
 import com.dreisamlib.lib.listener.OnSyncDatasCallBack
 import com.dreisamlib.demo.app.BaseActivity
-import com.dreisamlib.demo.inter.CallBackValue
 import com.dreisamlib.lib.listener.ValueCallBack
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,10 +40,8 @@ object ConnectCtrl {
     var connectLogStr = ""
 
 
-    //从开发平台获取自己的appId
-    val appid =
-        "you appid"
-
+    //You must obtain your appId from the developer platform; otherwise, the app may crash.
+    val appid = "xxxx"
     fun initSDK() {
         val builder = DreisamLibBuilder()
         builder.isHideLog = false
@@ -74,11 +71,19 @@ object ConnectCtrl {
 
     private fun connectListener() {
         DreisamLib.getConnectManage().connectListener(object : OnConnectListener {
-            override fun onConnecState(state: DreisamConnectEnum) {
+            override fun onConnectFail(state: DreisamConnectEnum?) {
                 val iter: MutableIterator<OnConnectListener?> = onConnectListeners.iterator()
                 while (iter.hasNext()) {
                     val listener: OnConnectListener? = iter.next()
-                    listener?.onConnecState(state)
+                    listener?.onConnectFail(state)
+                }
+            }
+
+            override fun onConnectState(state: DreisamConnectEnum) {
+                val iter: MutableIterator<OnConnectListener?> = onConnectListeners.iterator()
+                while (iter.hasNext()) {
+                    val listener: OnConnectListener? = iter.next()
+                    listener?.onConnectState(state)
                 }
             }
 
@@ -151,7 +156,7 @@ object ConnectCtrl {
     }
 
 
-    fun finishDevcie(callBack: CallBackValue<Boolean>) {
+    fun finishDevcie(callBack: com.dreisamlib.demo.inter.ValueCallBack<Boolean>) {
         DreisamLib.getConnectManage().finishDevice(object : ValueCallBack<Boolean> {
             override fun succ(t: Boolean?) {
                 val entity = DreisamGlucoseModel()

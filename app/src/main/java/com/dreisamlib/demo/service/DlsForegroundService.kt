@@ -10,29 +10,29 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.dreisamlib.demo.R
-import com.dreisamlib.demo.ui.MainActivity
 import com.dreisamlib.demo.utils.AppLogUtils
 import com.dreisamlib.lib.api.DreisamLib
 import com.dreisamlib.demo.utils.PermissionManager
+import com.dreisamlib.demo.ui.MainActivity
 
 /**
- * 血糖的前台服务(用于保活和执行后台定时任务)
+ * Foreground service for glucose monitoring (used for keep-alive and background scheduled tasks)
  */
 class DlsForegroundService : Service() {
 
 
     companion object {
-        // 使用伴生对象变量来跟踪服务状态
+        // Use a companion object variable to track service status
         @Volatile
         private var isServiceRunning = false
 
-        // 获取服务运行状态
+        // Get service running status
         fun isServiceRunning(): Boolean = isServiceRunning
 
         fun startService(context: Context) {
             if (!PermissionManager.checkBluetoothScanConnectPermission()) return
             if (!PermissionManager.checkNotifyPermission()) return
-            // 如果服务已经在运行，则不再启动
+            // Do not start again if the service is already running
             if (isServiceRunning) {
                 AppLogUtils.debug("Service is running")
                 return
@@ -50,7 +50,7 @@ class DlsForegroundService : Service() {
         }
 
         /**
-         * 启动服务
+         * Start service
          */
         private fun startServiceIntent(context: Context) {
             val intent = Intent(context, DlsForegroundService::class.java)
@@ -62,7 +62,7 @@ class DlsForegroundService : Service() {
         }
 
         /**
-         * 停止服务
+         * Stop service
          */
         fun stopService(context: Context) {
             val intent = Intent(context, DlsForegroundService::class.java)
@@ -90,24 +90,24 @@ class DlsForegroundService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         isServiceRunning = false
-        // 停止心跳检测（如果适用）
+        // Stop heartbeat check (if applicable)
         DreisamLib.getConnectManage().stopHeartbeat()
     }
 
     /**
-     * 前台服务的通知消息
+     * Notification message for foreground service
      */
     private fun startForeground() {
         val pendingIntent = PendingIntent.getActivity(
             this, 0, Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT // 使用FLAG_IMMUTABLE和FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT // Use FLAG_IMMUTABLE and FLAG_UPDATE_CURRENT
         )
         val notification: Notification = NotificationCompat.Builder(this, "service")
             .setContentTitle("Real-time data")
             .setContentText("--")
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
-            .setOngoing(true) // 设置为持续通知，防止被清除
+            .setOngoing(true) // Set as ongoing notification to prevent dismissal
             .build()
         if (PermissionManager.checkNotifyPermission())
             startForeground(1011, notification)

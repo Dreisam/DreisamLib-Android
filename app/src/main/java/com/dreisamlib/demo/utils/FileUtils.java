@@ -15,13 +15,13 @@ public class FileUtils {
 
 
 
-    // 将字符串写入到文本文件中
+    // Write string content into a text file
     public static void writeTxtToFile(String strcontent, String filePath, String fileName) {
-        //生成文件夹之后，再生成文件，不然会出错
+        // Create the directory first, then create the file to avoid errors
         makeFilePath(filePath, fileName);
 
         String strFilePath = filePath + fileName;
-        // 每次写入时，都换行写
+        // Append a new line for each write
         String strContent = strcontent + "\r\n";
         try {
             File file = new File(strFilePath);
@@ -40,7 +40,7 @@ public class FileUtils {
     }
 
     /**
-     * 删除文件
+     * Delete file
      */
     public static void deleteFile(Context context, String fileName) {
         File file =new  File(context.getCacheDir().getPath() + "/"+fileName);
@@ -49,7 +49,7 @@ public class FileUtils {
         }
     }
 
-    //生成文件
+    // Create file
     public static File makeFilePath(String filePath, String fileName) {
         File file = null;
         makeRootDirectory(filePath);
@@ -64,7 +64,7 @@ public class FileUtils {
         return file;
     }
 
-    //生成文件夹
+    // Create directory
     public static void makeRootDirectory(String filePath) {
         File file = null;
         try {
@@ -77,12 +77,12 @@ public class FileUtils {
         }
     }
 
-    //读取指定目录下的所有TXT文件的文件内容
+    // Read content from all TXT files in the specified directory
     public static String getFileContent(File file) {
-        Log.i("文件地址", "getFileContent: "+file.getPath());
+        Log.i("File Path", "getFileContent: "+file.getPath());
         String content = "";
-        if (!file.isDirectory()) {  //检查此路径名的文件是否是一个目录(文件夹)
-            if (file.getName().endsWith("txt")) {//文件格式为""文件
+        if (!file.isDirectory()) {  // Check whether this path is a directory (folder)
+            if (file.getName().endsWith("txt")) {// Check whether file format is txt
                 try {
                     InputStream instream = new FileInputStream(file);
                     if (instream != null) {
@@ -90,11 +90,11 @@ public class FileUtils {
                                 = new InputStreamReader(instream, "UTF-8");
                         BufferedReader buffreader = new BufferedReader(inputreader);
                         String line = "";
-                        //分行读取
+                        // Read line by line
                         while ((line = buffreader.readLine()) != null) {
                             content += line + "\n";
                         }
-                        instream.close();//关闭输入流
+                        instream.close();//Close input stream
                     }
                 } catch (java.io.FileNotFoundException e) {
                     Log.d("TestFile", "The File doesn't not exist.");

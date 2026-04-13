@@ -1,13 +1,6 @@
 package com.dreisamlib.demo.utils
 
-import android.content.Context
-import android.text.TextUtils
 import java.text.SimpleDateFormat
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -27,7 +20,6 @@ object TimeUtils {
     fun formatMDHM(timestamp: Long): String {
         return format(timestamp = timestamp, pattern = "MM-dd HH:mm:ss")
     }
-
 
     fun formatHMSS(timestamp: Long): String {
         return format(timestamp = timestamp, pattern = "HH:mm:ss:SSS")

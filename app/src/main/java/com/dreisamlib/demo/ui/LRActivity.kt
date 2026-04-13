@@ -39,17 +39,15 @@ class LRActivity : BaseActivity(), View.OnClickListener {
 
     private fun initView() {
         findViewById<View>(R.id.LR_BT_L).setOnClickListener(this)
-        val jwt = "you token"
+        val platformToken = "you token"  //A platform token can be obtained after registering through the platform API.
 
         editText = findViewById(R.id.LR_ET_USER_ID)
         token = MyApp.sharedPreferUtils.getString(Constans.KEY_USER_TOKEN, "")
         if (token?.isNotEmpty() == true) {
             editText.setText(token)
         } else {
-            editText.setText(jwt)
+            editText.setText(platformToken)
         }
-
-
 
     }
 

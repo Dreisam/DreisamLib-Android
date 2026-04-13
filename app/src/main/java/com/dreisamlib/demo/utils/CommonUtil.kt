@@ -22,7 +22,7 @@ import kotlin.toString
 
 
 /**
- * 通用工具类
+ * Common utility class
  */
 object CommonUtil {
     private var dialogCommon: CommDialog? = null
@@ -30,15 +30,15 @@ object CommonUtil {
 
 
     /**
-     * 是否需要检验定位
-     * 安卓12以下才需要检验定位是否开启，安卓12及以上蓝牙扫描不再需要定位
+     * Whether location check is required
+     * Only Android 12 and below need location enabled; Android 12+ no longer requires location for Bluetooth scanning
      */
     fun isNeedCheckLocation(): Boolean {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.S
     }
 
     /**
-     * 定位是否开启
+     * Whether location is enabled
      */
     fun isLocationEnabled(): Boolean {
         val context = MyApp.context
@@ -48,7 +48,7 @@ object CommonUtil {
     }
 
     /**
-     * 检查蓝牙是否开启
+     * Check whether Bluetooth is enabled
      */
     fun isBlueEnable(): Boolean {
         return BluetoothAdapter.getDefaultAdapter().isEnabled
@@ -56,16 +56,16 @@ object CommonUtil {
 
 
     /**
-     * 显示打开手机蓝牙的弹框
+     * Show dialog prompting user to enable Bluetooth
      */
     fun showOpenBluetoothDialog(context: Context) {
         dialogCommon?.dismiss()
         dialogCommon = CommDialog(context)
-        dialogCommon?.message = "蓝牙开关已关闭，需要开启才能正常使用应用。"
+        dialogCommon?.message = "Bluetooth is turned off. Please enable it to use the app normally."
         dialogCommon?.onSelectListener = object : CommDialog.OnSelectListener {
             override fun onConfirm() {
                 super.onConfirm()
-                openPhoneBluetooth(ActivityUtils.currentActivity())//打开蓝牙开关
+                openPhoneBluetooth(ActivityUtils.currentActivity())//Enable Bluetooth
             }
         }
         dialogCommon?.show()
@@ -73,9 +73,9 @@ object CommonUtil {
 
 
     /**
-     * 提醒用户，敏感权限缺失，APP功能无法正常使用
+     * Warn user that required sensitive permissions are missing and app features may not work properly
      * @param context
-     * @param msgRes 弹框提示文案
+     * @param msgRes Dialog message text
      * @param permissions
      */
     fun showWarnUserPermissionNullDialog(
@@ -105,16 +105,16 @@ object CommonUtil {
     }
 
     /**
-     * 显示打开手机定位的弹框
+     * Show dialog prompting user to enable location
      */
     fun showOpenLocationDialog(context: Context) {
         dialogCommon?.dismiss()
         dialogCommon = CommDialog(context)
-        dialogCommon?.message = "位置开关已关闭，需要开启才能正常使用应用。"
+        dialogCommon?.message = "Location is turned off. Please enable it to use the app normally."
         dialogCommon?.onSelectListener = object : CommDialog.OnSelectListener {
             override fun onConfirm() {
                 super.onConfirm()
-                openPhoneLocation(ActivityUtils.currentActivity())//打开蓝牙开关
+                openPhoneLocation(ActivityUtils.currentActivity())//Enable location
             }
         }
         dialogCommon?.show()
@@ -122,7 +122,7 @@ object CommonUtil {
 
 
     /**
-     * 打开蓝牙开关
+     * Enable Bluetooth
      */
     fun openPhoneBluetooth(context: Activity?) {
         PermissionManager.requestBluetoothScanConnectPermission(
@@ -141,29 +141,29 @@ object CommonUtil {
     }
 
     /**
-     * 打开定位开关
+     * Enable location services
      */
     fun openPhoneLocation(context: Activity?) {
-        // 请求打开蓝牙
+        // Request to enable location
         Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
             context?.startActivityForResult(this, 1010)
         }
     }
 
     /**
-     * 显示蓝牙权限被拒绝的弹框
+     * Show dialog when Bluetooth permission is denied
      */
     fun showWarnUserPermissionNullBluetoothDialog(context: Context?, listener: CommDialog.OnSelectListener?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
             showWarnUserPermissionNullDialog(
                 context,
-                "没有蓝牙扫描和蓝牙连接权限，应用功能将无法正常工作。您要去设置中开启权限吗？",
+                "Bluetooth scan and connect permissions are missing, so app features may not work properly. Go to Settings to enable them?",
                 listener
             )
         else
             showWarnUserPermissionNullDialog(
                 context,
-                "没有位置权限，应用功能将无法正常工作。您要去设置中开启权限吗？",
+                "Location permission is missing, so app features may not work properly. Go to Settings to enable it?",
                 listener
             )
 
