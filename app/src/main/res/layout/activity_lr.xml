@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_height="match_parent">
+
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/LR_ET_USER_ID"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="20dp"
+            android:padding="10dp"
+            android:background="@drawable/bg_gray_stroke_50"
+            android:hint="DeviceID"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/scanBt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            android:textAllCaps="false"
+            android:text="Scan"
+            app:layout_constraintEnd_toEndOf="@+id/LR_BT_R"
+            app:layout_constraintStart_toStartOf="@+id/LR_ET_USER_ID"
+            app:layout_constraintTop_toBottomOf="@+id/LR_ET_USER_ID" />
+    </LinearLayout>
+
+
+
+    <Button
+        android:id="@+id/LR_BT_L"
+        android:textAllCaps="false"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="10dp"
+        android:text="Connect"
+        app:layout_constraintEnd_toEndOf="@+id/LR_BT_R"
+        app:layout_constraintStart_toStartOf="@+id/LR_ET_USER_ID"
+        app:layout_constraintTop_toBottomOf="@+id/LR_ET_USER_ID" />
+
+</LinearLayout>

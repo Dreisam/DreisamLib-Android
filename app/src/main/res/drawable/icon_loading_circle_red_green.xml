@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green1"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green2"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green3"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green4"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green5"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green6"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green7"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green8"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green9"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green10"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green11"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green12"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green13"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green14"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green15"
+        android:duration="100" />
+    <item
+        android:drawable="@mipmap/icon_loading_circle_red_green16"
+        android:duration="100" />
+</animation-list>
