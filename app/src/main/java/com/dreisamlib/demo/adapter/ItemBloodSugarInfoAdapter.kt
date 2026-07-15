@@ -29,8 +29,8 @@ class ItemBloodSugarInfoAdapter(context: Context) :
         super.onBindViewHolder(holder, position)
         var viewHolder = holder as ViewHolder
         val entity = getItemData(position)
-        viewHolder.tvTime.text = TimeUtils.formatMDHM(entity.timeCreate * 1000)
-        viewHolder.tvPack.text = "${entity.packageNumber}"
+        viewHolder.tvTime.text = TimeUtils.formatMDHM(entity.createTime * 1000)
+        viewHolder.tvPack.text = "${entity.packageNum}"
         viewHolder.tvBloodSugar.text = "${entity.glucose}"
 
     }

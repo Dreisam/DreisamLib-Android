@@ -65,7 +65,7 @@ class ScanActivity : BaseActivity(), ZXingScannerView.ResultHandler {
         if (!TextUtils.isEmpty(result.getText())) {
             val UUID = result.getText()
             val intent = Intent()
-            intent.putExtra("sn",UUID)
+            intent.putExtra("id",UUID)
             setResult(RESULT_OK,intent)
             finish()
 

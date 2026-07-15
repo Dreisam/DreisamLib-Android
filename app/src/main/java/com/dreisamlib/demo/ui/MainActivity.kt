@@ -16,25 +16,22 @@ import com.dreisamlib.demo.app.MyApp
 import com.dreisamlib.demo.constant.Constans
 import com.dreisamlib.demo.ctrl.ConnectCtrl
 import com.dreisamlib.demo.dialog.CommDialog
-import com.dreisamlib.demo.inter.ValueCallBack
 import com.dreisamlib.demo.service.DlsForegroundService
 import com.dreisamlib.demo.utils.ActivityUtils
 import com.dreisamlib.demo.utils.AppLogUtils
 import com.dreisamlib.demo.utils.CommonUtil
 import com.dreisamlib.demo.utils.NotifyUtils
 import com.dreisamlib.demo.utils.TimeUtils
+import com.dreisamlib.lib.bean.DreisamConnectEnum
+import com.dreisamlib.lib.bean.DreisamGlucoseModel
 import com.dreisamlib.lib.listener.OnAnalzeDatatListener
 import com.dreisamlib.lib.listener.OnConnectListener
 import com.dreisamlib.demo.utils.PermissionManager.OnRequestPermissionCallback
 import com.dreisamlib.lib.listener.OnSyncDatasCallBack
 import com.dreisamlib.demo.utils.PermissionManager
 import com.dreisamlib.demo.utils.PermissionManager.requestBluetoothScanConnectPermission
-import com.dreisamlib.demo.utils.ToastUtil
 import com.dreisamlib.lib.api.DreisamLib
-import com.dreisamlib.lib.bean.DreisamConnectEnum
-import com.dreisamlib.lib.bean.DreisamGlucoseModel
 import java.util.Collections
-import kotlin.text.toInt
 
 
 class MainActivity : BaseActivity(), View.OnClickListener {
@@ -89,7 +86,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         findViewById<View>(R.id.logout).setOnClickListener(this)
         findViewById<View>(R.id.dataLayout).setOnClickListener(this)
         findViewById<View>(R.id.logTv).setOnClickListener(this)
-        findViewById<View>(R.id.finishTv).setOnClickListener(this)
 
         commDialog = CommDialog(this)
         commDialog.title = "Log"
@@ -122,8 +118,12 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
         val lastData = MyApp.sharedPreferUtils.getGlucoseNew()
         lastData?.let {
-            glucoseTv.setText(it.glucose.toString())
-            timeTv.setText(TimeUtils.formatHM(it.timeCreate * 1000))
+            if (it.type == 1) {
+                glucoseTv.setText("Warm-Up")
+            } else {
+                glucoseTv.setText(it.glucose.toString())
+            }
+            timeTv.setText(TimeUtils.formatHM(it.createTime * 1000))
             NotifyUtils.sendGlucoseData(it)
         }
 
@@ -135,6 +135,17 @@ class MainActivity : BaseActivity(), View.OnClickListener {
 
     }
 
+    private fun getBloodSugarData() {
+        val startTime = TimeUtils.getTimeStartFromDay(System.currentTimeMillis()) / 1000
+        val endTime = TimeUtils.getTimeEndFromDay(System.currentTimeMillis()) / 1000
+
+        AppLogUtils.debug("startTime:$startTime  endTime:$endTime")
+        DreisamLib.getConnectManage().getHistory(startTime, endTime) { datas ->
+            Collections.sort(datas) { p0, p1 -> (p1.createTime - p0.createTime).toInt() }
+            adapter.setDataList(datas)
+        }
+
+    }
 
     override fun onResume() {
         super.onResume()
@@ -162,7 +173,12 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 viewStates.visibility = View.GONE
                 devConnectStateTv.text = "Auth Fail"
                 connectStateTv.text = "Authentication Fail"
-            }else if (state == DreisamConnectEnum.LACK_PERMISSION) {
+            } else if (state == DreisamConnectEnum.DEVICE_FINISH) {
+                proLoading.visibility = View.VISIBLE
+                viewStates.visibility = View.GONE
+                devConnectStateTv.text = "Device Finish"
+                connectStateTv.text = "Device Finish"
+            } else if (state == DreisamConnectEnum.LACK_PERMISSION) {
                 connectStateTv.text = "No Permission"
                 devConnectStateTv.text = "No Permission"
                 if (!CommonUtil.isBlueEnable()) {
@@ -191,11 +207,6 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 proLoading.visibility = View.VISIBLE
                 viewStates.visibility = View.GONE
                 connectStateTv.text = "Connecting"
-            }  else if (state == DreisamConnectEnum.DEVICE_FINISH) {
-                proLoading.visibility = View.VISIBLE
-                viewStates.visibility = View.GONE
-                devConnectStateTv.text = "Device Finish"
-                connectStateTv.text = "Device Finish"
             }  else if (state == DreisamConnectEnum.DEVICE_DISCONNECT) {
                 proLoading.visibility = View.VISIBLE
                 viewStates.visibility = View.GONE
@@ -209,19 +220,23 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             devConnectStateTv.text = "Ble：Connected"
             proLoading.visibility = View.GONE
             viewStates.visibility = View.VISIBLE
+            if (isFrist) getBloodSugarData()
             isFrist = false
-//            handler.postDelayed({ rssiTv.setText("rssi:" + InnerConnectCtrl.getInstance().rssi.toString()) }, 1000)
-
         }
 
     }
 
     val onAnalzeDatatListener = OnAnalzeDatatListener {
         AppLogUtils.debug("realTimeDataCallBack: " + it.printMessage())
-        glucoseTv.setText(it.glucose.toString())
-        timeTv.setText(TimeUtils.formatHM(it.timeCreate * 1000))
+        if (it.type == 1) {
+            glucoseTv.setText("Warm-Up")
+        } else {
+            glucoseTv.setText(it.glucose.toString())
+        }
 
-        adapter.addFirstData(it)
+        timeTv.setText(TimeUtils.formatHM(it.createTime * 1000))
+        if (it.type != 1)
+            adapter.addFirstData(it)
     }
 
     val onSyncDatasCallBack = object : OnSyncDatasCallBack {
@@ -239,7 +254,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
             }
         }
 
-        override fun onSyncComplete(success: Boolean, datas: List<DreisamGlucoseModel>) {
+        override fun onSyncComplete(success: Boolean, datas: List<DreisamGlucoseModel?>?) {
             handler.post {
                 syncLayout.visibility = View.GONE
                 syncTv.text = ""
@@ -248,12 +263,17 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                 AppLogUtils.debug("SyncComplete data：" + datas?.size + " start： " + datas?.get(0)?.printMessage() + "  end：" + datas?.last()?.printMessage())
                 val lastData = datas?.last()
                 lastData?.let {
-                    glucoseTv.setText(it.glucose.toString())
-                    timeTv.setText(TimeUtils.formatHM(it.timeCreate * 1000))
+                    if (it.type == 1) {
+                        glucoseTv.setText("Warm-Up")
+                    } else {
+                        glucoseTv.setText(it.glucose.toString())
+                    }
+
+                    timeTv.setText(TimeUtils.formatHM(it.createTime * 1000))
                 }
                 Toast.makeText(this@MainActivity, "Sync Complete", Toast.LENGTH_LONG)
-                Collections.sort(datas) { p0, p1 -> (p1.timeCreate - p0.timeCreate).toInt() }
-                adapter.setDataList(datas)
+                getBloodSugarData()
+
             }
 
         }
@@ -273,7 +293,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         DreisamLib.getConnectManage().checkPreConditions { granted, missingPermissions ->
             if (granted) {
                 connectStateTv.text = "Connecting"
-                ConnectCtrl.connectDevice()
+                ConnectCtrl.connectDevice(devName)
                 DlsForegroundService.startService(this@MainActivity)//启动前台服务
                 showBackGroundLocationPermissionDialog()
             } else {
@@ -282,7 +302,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
                         override fun onGranted(allGranted: Boolean) {
                             if (allGranted) {
                                 connectStateTv.text = "Connecting"
-                                ConnectCtrl.connectDevice()
+                                ConnectCtrl.connectDevice(devName)
                                 DlsForegroundService.startService(this@MainActivity)//启动前台服务
                                 showBackGroundLocationPermissionDialog()
                             } else {
@@ -325,7 +345,7 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         dialog.onSelectListener = object : CommDialog.OnSelectListener {
             override fun onConfirm() {
                 super.onConfirm()
-                ConnectCtrl.logout()
+                ConnectCtrl.destroy()
                 startActivity(Intent(this@MainActivity, LRActivity::class.java))
                 finish()
             }
@@ -366,44 +386,13 @@ class MainActivity : BaseActivity(), View.OnClickListener {
         dialog.show()
     }
 
-
-    /**
-     *
-     */
-    private fun finishDevice() {
-        val dialog = CommDialog(this)
-        dialog.message = "When the device ends, it will disconnect and clear the SDK data"
-        dialog.onSelectListener = object : CommDialog.OnSelectListener {
-            override fun onConfirm() {
-                super.onConfirm()
-                ConnectCtrl.finishDevcie(object : ValueCallBack<Boolean>{
-                    override fun succ(t: Boolean?) {
-                        AppLogUtils.debug("finishDevcie succ")
-                        startActivity(Intent(this@MainActivity, BindActivity::class.java))
-                        finish()
-                    }
-
-                    override fun fail(code: Int, msg: String?) {
-                        AppLogUtils.debug("finishDevcie fail: "+msg)
-                        ToastUtil.showToast(msg)
-                    }
-
-                })
-            }
-        }
-        dialog.show()
-    }
-
-
     override fun onClick(v: View?) {
         if (v?.id == R.id.logout) {
             logout()
         } else if (v?.id == R.id.dataLayout) {
-//            startActivity(Intent(this, DataListActivity::class.java))
+            startActivity(Intent(this, DataListActivity::class.java))
         } else if (v?.id == R.id.logTv) {
             showLogDialog()
-        } else if (v?.id == R.id.finishTv){
-            finishDevice()
         }
     }
 

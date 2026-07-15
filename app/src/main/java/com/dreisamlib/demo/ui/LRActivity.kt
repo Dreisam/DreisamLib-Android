@@ -11,25 +11,24 @@ import com.dreisamlib.demo.R
 import com.dreisamlib.demo.app.BaseActivity
 import com.dreisamlib.demo.app.MyApp
 import com.dreisamlib.demo.constant.Constans
+import com.dreisamlib.demo.ctrl.ConnectCtrl
 import com.dreisamlib.demo.dialog.CommDialog
 import com.dreisamlib.demo.utils.AppLogUtils
 import com.dreisamlib.demo.utils.CommonUtil
 import com.dreisamlib.demo.utils.NotifyUtils
 import com.dreisamlib.demo.utils.PermissionManager
-import com.dreisamlib.demo.utils.PermissionManager.OnRequestPermissionCallback
 import com.dreisamlib.demo.utils.PermissionManager.requestBluetoothScanConnectPermission
-import com.dreisamlib.demo.utils.ToastUtil
 import com.dreisamlib.lib.api.DreisamLib
-import com.dreisamlib.lib.bean.DrisamDeviceModel
-import com.dreisamlib.lib.listener.OnLoginListener
-
+import kotlin.jvm.java
+import kotlin.let
+import kotlin.text.isEmpty
 
 /**
  * 登录/注册界面
  */
 class LRActivity : BaseActivity(), View.OnClickListener {
     private lateinit var editText: EditText
-    private var token: String? = ""
+    private var macName: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,35 +38,40 @@ class LRActivity : BaseActivity(), View.OnClickListener {
 
     private fun initView() {
         findViewById<View>(R.id.LR_BT_L).setOnClickListener(this)
-        val platformToken = "you token"  //A platform token can be obtained after registering through the platform API.
-
+        findViewById<View>(R.id.scanBt).setOnClickListener(this)
         editText = findViewById(R.id.LR_ET_USER_ID)
-        token = MyApp.sharedPreferUtils.getString(Constans.KEY_USER_TOKEN, "")
-        if (token?.isNotEmpty() == true) {
-            editText.setText(token)
-        } else {
-            editText.setText(platformToken)
+
+        val devName = MyApp.sharedPreferUtils.getString(Constans.KEY_DEV_NAME, "")
+        if (devName?.isEmpty() == true){
+            editText.setText("DLS-11111")
+        }else{
+            editText.setText(devName)
         }
-
+        AppLogUtils.debug("devName:$devName")
     }
-
 
     override fun onResume() {
         super.onResume()
         AppLogUtils.debug("onResume")
-        if (token?.isNotEmpty() == true) {
+
+        AppLogUtils.debug("user:" + MyApp.sharedPreferUtils.getInt(Constans.KEY_USER_LOGIN))
+        if (MyApp.sharedPreferUtils.getInt(Constans.KEY_USER_LOGIN) > 0) {
+            macName = editText.text.toString()
             login()
         }
     }
 
     override fun onClick(v: View) {
         if (v.getId() == R.id.LR_BT_L) {
-            token = editText.text.toString()
-            token?.let {
+            macName = editText.text.toString()
+            macName?.let {
                 login()
             } ?: let {
-                Toast.makeText(this, "token no empty", Toast.LENGTH_LONG)
+                Toast.makeText(this, "DeviceID no empty", Toast.LENGTH_LONG)
             }
+
+        } else if (v.getId() == R.id.scanBt) {
+            startActivityForResult(Intent(this, ScanActivity::class.java), 200)
         }
     }
 
@@ -89,48 +93,46 @@ class LRActivity : BaseActivity(), View.OnClickListener {
             return
         }
         DreisamLib.getConnectManage().checkPreConditions { granted, missingPermissions ->
-            if (granted) {
-                PermissionManager.requestNotifyPermission(
-                    this,
-                    object : OnRequestPermissionCallback {
-                        override fun onGranted(allGranted: Boolean) {
-                            if (allGranted) {
-                                showBatteryNeedsSettingDialog()
-                            } else {
-                                showWarnPer()
-                            }
-                        }
-                    })
-            } else {
-                requestBluetoothScanConnectPermission(this, object : OnRequestPermissionCallback {
-                    override fun onGranted(allGranted: Boolean) {
-                        if (allGranted) {
-                            login()
-                        }
-                    }
-                })
-            }
+           if (granted){
+               PermissionManager.requestNotifyPermission(
+                   this,
+                   object : PermissionManager.OnRequestPermissionCallback {
+                       override fun onGranted(allGranted: Boolean) {
+                           if (allGranted) {
+                               showBatteryNeedsSettingDialog()
+                           } else {
+                               showWarnPer()
+                           }
+                       }
+                   })
+           }else{
+               requestBluetoothScanConnectPermission(this, object : PermissionManager.OnRequestPermissionCallback {
+                   override fun onGranted(allGranted: Boolean) {
+                       if (allGranted) {
+                           login()
+                       }
+                   }
+               })
+           }
         }
 
     }
-
     /**
-     *
+     * 显示申请电池优化询问的弹框(因为文案是AI翻译的，暂时先不使用)
      */
     private fun showBatteryNeedsSettingDialog() {
-        if (PermissionManager.checkIgnoreBatteryOptimizationsPermission()) {
+        if (PermissionManager.checkIgnoreBatteryOptimizationsPermission() || MyApp.sharedPreferUtils.getInt(Constans.KEY_USER_LOGIN) > 0) {
             goMain()
             return
         }
         val dialog = CommDialog(this)
-        dialog.message =
-            "The system may automatically close the application. To ensure that the application can obtain blood sugar data normally, please go to the phone Settings to turn off the battery optimization of the application or set it to unlimited."
+        dialog.message = "The system may automatically close the application. To ensure that the application can obtain blood sugar data normally, please go to the phone Settings to turn off the battery optimization of the application or set it to unlimited."
         dialog.onSelectListener = object : CommDialog.OnSelectListener {
             override fun onConfirm() {
                 super.onConfirm()
                 PermissionManager.requestIgnoreBatteryOptimizationsPermission(
                     this@LRActivity,
-                    object : OnRequestPermissionCallback {
+                    object : PermissionManager.OnRequestPermissionCallback {
                         override fun onGranted(allGranted: Boolean) {
                             goMain()
                         }
@@ -141,45 +143,21 @@ class LRActivity : BaseActivity(), View.OnClickListener {
     }
 
 
-    fun goMain() {
-        val areaCode = "test"
-        showLoading()
-        DreisamLib.getConnectManage().login(areaCode, token, object : OnLoginListener {
-
-
-            override fun loginSucc(hasAvailableDevice: Boolean, deviceInfo: DrisamDeviceModel) {
-                hideLoading()
-                MyApp.sharedPreferUtils.putString(Constans.KEY_USER_TOKEN, token)
-                AppLogUtils.debug("goMain token:" + token)
-                NotifyUtils.createNotificationChannel()
-                NotifyUtils.sendGlucoseService()
-                //如果没有可用设备则需要去绑定。
-                if (hasAvailableDevice) {
-                    MyApp.sharedPreferUtils.putString(Constans.KEY_DEV_NAME, deviceInfo.deviceSn)
-                    startActivity(Intent(this@LRActivity, MainActivity::class.java))
-                    finish()
-                } else {
-                    startActivity(Intent(this@LRActivity, BindActivity::class.java))
-                    finish()
-                }
-            }
-
-            override fun loginFail(code: Int, msg: String?) {
-                hideLoading()
-                AppLogUtils.debug("loginFail: $code  $msg")
-                MyApp.sharedPreferUtils.putString(Constans.KEY_USER_TOKEN, "")
-                ToastUtil.showToast(msg)
-            }
-
-        })
-
+    fun goMain(){
+        ConnectCtrl.initSDK()
+        MyApp.sharedPreferUtils.putInt(Constans.KEY_USER_LOGIN, 1)
+        AppLogUtils.debug("goMain macName:" + macName)
+        MyApp.sharedPreferUtils.putString(Constans.KEY_DEV_NAME, macName)
+        NotifyUtils.createNotificationChannel()
+        NotifyUtils.sendGlucoseService()
+        startActivity(Intent(this@LRActivity, MainActivity::class.java))
+        finish()
     }
 
 
     fun showWarnPer() {
         val dialogCommon = CommDialog(this)
-        dialogCommon?.message =
-            "Without notification permission, the application function will not work properly. Do you want to enable permissions in the Settings?"
+        dialogCommon?.message = "Without notification permission, the application function will not work properly. Do you want to enable permissions in the Settings?"
         dialogCommon?.onSelectListener = object : CommDialog.OnSelectListener {
             override fun onConfirm() {
                 super.onConfirm()

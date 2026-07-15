@@ -18,7 +18,7 @@ import com.dreisamlib.lib.listener.OnAnalzeDatatListener
 import com.dreisamlib.lib.listener.OnConnectListener
 import com.dreisamlib.lib.listener.OnSyncDatasCallBack
 import com.dreisamlib.demo.app.BaseActivity
-import com.dreisamlib.lib.listener.ValueCallBack
+import com.dreisamlib.lib.bean.DreisamDeviceInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -50,8 +50,8 @@ object ConnectCtrl {
     }
 
 
-    fun connectDevice() {
-        DreisamLib.getConnectManage().connectDevice()
+    fun connectDevice(deviceName: String?) {
+        DreisamLib.getConnectManage().connectDevice(deviceName)
     }
 
 
@@ -155,37 +155,26 @@ object ConnectCtrl {
         })
     }
 
-
-    fun finishDevcie(callBack: com.dreisamlib.demo.inter.ValueCallBack<Boolean>) {
-        DreisamLib.getConnectManage().finishDevice(object : ValueCallBack<Boolean> {
-            override fun succ(t: Boolean?) {
-                val entity = DreisamGlucoseModel()
-                entity.type = 0
-                NotifyUtils.sendGlucoseData(entity)
-                MyApp.sharedPreferUtils.putString(Constans.KEY_DEV_NAME, "")
-                callBack.succ(true)
-            }
-
-            override fun fail(code: Int, msg: String?) {
-                callBack.fail(code,msg)
-            }
-
-        })
-
-    }
-
-    fun logout() {
+    fun destroy() {
         val entity = DreisamGlucoseModel()
-        entity.type = 0
+        entity.type = 1
         NotifyUtils.sendGlucoseData(entity)
         connectLogStr = ""
         val devName = MyApp.sharedPreferUtils.getString(Constans.KEY_DEV_NAME, "")
         MyApp.sharedPreferUtils.clear()
-        DreisamLib.getConnectManage().logout()
+        DreisamLib.unInit()
         MyApp.sharedPreferUtils.putString(Constans.KEY_DEV_NAME, devName)
         deleteFile(MyApp.context, "AndroidDreisamLog.txt")
     }
 
+    fun disconnect(){
+        DreisamLib.getConnectManage().disconnect()
+    }
+
+
+    fun getDeviceInfo(): DreisamDeviceInfo {
+        return DreisamLib.getConnectManage().deviceInfo
+    }
 
     fun addOnConnectListener(onConnectListener: OnConnectListener) {
         if (!onConnectListeners.contains(onConnectListener)) {
@@ -241,7 +230,7 @@ object ConnectCtrl {
         val job = scope.launch {
             try {
                 //创建文件
-                val file = makeFilePath(
+                val file =   makeFilePath(
                     MyApp.context.cacheDir.path,
                     "/$fileName"
                 )

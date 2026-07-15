@@ -90,7 +90,7 @@ object NotifyUtils {
      */
     fun sendGlucoseData(entity: DreisamGlucoseModel) {
         var title = "Real-time data"
-        var time = TimeUtils.formatHM(entity.timeCreate * 1000)
+        var time = TimeUtils.formatHM(entity.createTime * 1000)
         var value = entity.glucose
         var message = if (entity.type == 0) "--" else "Time：$time Value：$value"
         sendNotifyMessage(title, message, serviceId, notifyIdService)
@@ -104,7 +104,7 @@ object NotifyUtils {
         val entity = MyApp.sharedPreferUtils.getGlucoseNew()
         var message = "--"
         entity.let {
-            if (entity.type == 0) "--" else "Time：${ TimeUtils.formatHM(it.timeCreate * 1000)} Value：${it.glucose}"
+            if (entity.type == 0) "--" else "Time：${ TimeUtils.formatHM(it.createTime * 1000)} Value：${it.glucose}"
         }
         sendNotifyMessage(title, message, serviceId, notifyIdService)
     }
