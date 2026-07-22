@@ -55,7 +55,7 @@ android {
 }
 
 dependencies {
-    implementation(files("libs/DreisamLib-release_1.0.4.aar"))
+    implementation(files("libs/DreisamLib-release_1.0.6.aar"))
     implementation("androidx.work:work-runtime-ktx:2.9.1")
 
     implementation("androidx.activity:activity:1.8.0")
