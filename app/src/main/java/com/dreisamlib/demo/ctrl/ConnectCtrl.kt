@@ -40,12 +40,12 @@ object ConnectCtrl {
     var connectLogStr = ""
 
 
-    //You must obtain your appId from the developer platform; otherwise, the app may crash.
-    val appid = "xxxx"
+    //You must obtain your license from the developer platform; otherwise, the app may crash.
+    val license = "xxxx"
     fun initSDK() {
         val builder = DreisamLibBuilder()
         builder.isHideLog = false
-        DreisamLib.initSDK(appid, builder)
+        DreisamLib.initSDK(license, builder)
         setConnceListener()
     }
 
